@@ -1,0 +1,36 @@
+name: self-test
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch: {}
+
+jobs:
+  passing-gate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Gate on high-trust agents (must pass)
+        uses: ./
+        with:
+          targets: |
+            deepset-ai/haystack
+            vercel/ai
+          min-grade: B
+
+  warn-only-gate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Strict gate in warn-only mode (must not fail the job)
+        id: gate
+        uses: ./
+        with:
+          targets: "deepset-ai/haystack, definitely-not-tracked-xyz"
+          min-grade: A
+          fail-on-untracked: "true"
+          warn-only: "true"
+      - name: Assert failures were counted but job survived
+        run: |
+          echo "failures=${{ steps.gate.outputs.failures }}"
+          test "${{ steps.gate.outputs.failures }}" -ge 1

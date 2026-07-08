@@ -1,0 +1,51 @@
+name: "HVTrust Gate"
+description: >-
+  Fail CI when an AI agent, framework, or MCP server your project depends on
+  falls below your trust threshold on HVTracker (hvtracker.net) — independent,
+  evidence-based supply-chain trust scores.
+author: "HVTracker"
+branding:
+  icon: shield
+  color: green
+
+inputs:
+  targets:
+    description: >-
+      Dependencies to check, comma- or newline-separated. Each entry may be a
+      GitHub owner/repo, repo URL, npm or PyPI package name, HVTracker slug,
+      or display name (same resolution as hvtracker.net/verify).
+    required: true
+  min-grade:
+    description: "Minimum acceptable trust grade: A, B, C, or D (default C)."
+    required: false
+    default: "C"
+  fail-on-untracked:
+    description: >-
+      Treat targets that are not in the HVTracker registry as failures
+      (default false: untracked targets only warn).
+    required: false
+    default: "false"
+  warn-only:
+    description: "Never fail the job; report findings only (default false)."
+    required: false
+    default: "false"
+
+outputs:
+  failures:
+    description: "Number of targets below the threshold (or untracked when fail-on-untracked)."
+    value: ${{ steps.gate.outputs.failures }}
+  report:
+    description: "One-line-per-target result summary."
+    value: ${{ steps.gate.outputs.report }}
+
+runs:
+  using: composite
+  steps:
+    - id: gate
+      shell: bash
+      env:
+        HVT_TARGETS: ${{ inputs.targets }}
+        HVT_MIN_GRADE: ${{ inputs['min-grade'] }}
+        HVT_FAIL_ON_UNTRACKED: ${{ inputs['fail-on-untracked'] }}
+        HVT_WARN_ONLY: ${{ inputs['warn-only'] }}
+      run: python3 "${{ github.action_path }}/gate.py"
