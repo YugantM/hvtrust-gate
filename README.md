@@ -2,7 +2,7 @@
 
 Fail CI when an AI agent, framework, or MCP server your project depends on
 falls below your trust threshold on [HVTracker](https://hvtracker.net) —
-independent, evidence-based supply-chain trust scores for 300+ open-source
+independent, evidence-based supply-chain trust scores for 1,600+ open-source
 AI agents (OSSF Scorecard, build provenance, signed commits, runtime
 capability surface; methodology public, credentials Ed25519-signed).
 
