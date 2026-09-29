@@ -1,8 +1,5 @@
 name: "HVTrust Gate"
-description: >-
-  Fail CI when an AI agent, framework, or MCP server your project depends on
-  falls below your trust threshold on HVTracker (hvtracker.net) — independent,
-  evidence-based supply-chain trust scores.
+description: "Fail CI when an AI agent, framework or MCP server you depend on falls below your minimum HVTracker trust grade."
 author: "HVTracker"
 branding:
   icon: shield
