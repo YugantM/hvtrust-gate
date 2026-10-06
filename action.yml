@@ -1,5 +1,5 @@
 name: "HVTrust Gate"
-description: "Fail CI when an AI agent, framework or MCP server you depend on falls below your minimum HVTracker trust grade."
+description: "Trust grades for the AI agents and MCP servers your repo uses. Zero config, PR comments, optional CI gate by grade."
 author: "HVTracker"
 branding:
   icon: shield
@@ -10,8 +10,29 @@ inputs:
     description: >-
       Dependencies to check, comma- or newline-separated. Each entry may be a
       GitHub owner/repo, repo URL, npm or PyPI package name, HVTracker slug,
-      or display name (same resolution as hvtracker.net/verify).
-    required: true
+      or display name (same resolution as hvtracker.net/verify). Leave empty
+      to scan the repository's dependency files instead.
+    required: false
+    default: ""
+  scan:
+    description: >-
+      When no targets are given: "auto" (default) finds requirements*.txt,
+      pyproject.toml, package.json and MCP client configs (.mcp.json,
+      .vscode/mcp.json, .cursor/mcp.json); or list specific files; "false"
+      disables scanning.
+    required: false
+    default: "auto"
+  comment:
+    description: >-
+      Pull-request comment with the results: "auto" (default) posts or updates
+      one comment when the PR changes a scanned dependency file; "always" on
+      every PR run; "false" never. Needs `pull-requests: write`.
+    required: false
+    default: "auto"
+  github-token:
+    description: "Token used to comment on pull requests."
+    required: false
+    default: ${{ github.token }}
   min-grade:
     description: "Minimum acceptable trust grade: A, B, C, or D (default C)."
     required: false
@@ -45,4 +66,7 @@ runs:
         HVT_MIN_GRADE: ${{ inputs['min-grade'] }}
         HVT_FAIL_ON_UNTRACKED: ${{ inputs['fail-on-untracked'] }}
         HVT_WARN_ONLY: ${{ inputs['warn-only'] }}
+        HVT_SCAN: ${{ inputs.scan }}
+        HVT_COMMENT: ${{ inputs.comment }}
+        HVT_TOKEN: ${{ inputs['github-token'] }}
       run: python3 "${{ github.action_path }}/gate.py"
