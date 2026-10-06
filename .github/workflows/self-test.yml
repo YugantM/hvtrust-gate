@@ -34,3 +34,23 @@ jobs:
         run: |
           echo "failures=${{ steps.gate.outputs.failures }}"
           test "${{ steps.gate.outputs.failures }}" -ge 1
+
+  zero-config-scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Scan a dependency file (must find the AI dependencies and pass)
+        id: gate
+        uses: ./
+        with:
+          scan: test/fixture/requirements.txt
+          min-grade: C
+      - name: Assert the AI dependencies were reported and nothing failed
+        env:
+          REPORT: ${{ steps.gate.outputs.report }}
+          FAILURES: ${{ steps.gate.outputs.failures }}
+        run: |
+          printf '%s\n' "$REPORT"
+          test "$FAILURES" = "0"
+          printf '%s' "$REPORT" | grep -q "langgraph"
+          printf '%s' "$REPORT" | grep -q "crewai"
